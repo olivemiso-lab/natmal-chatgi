@@ -1,0 +1,10 @@
+{
+  "name": "낱말 찾기",
+  "short_name": "낱말 찾기",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1767a8",
+  "lang": "ko",
+  "icons": [{ "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

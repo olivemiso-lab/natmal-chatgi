@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>낱말 찾기</title>
+<meta name="theme-color" content="#1767a8">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+
+  <section id="s-enter" class="screen hidden">
+    <div class="hero">
+      <div id="m-enter"></div>
+      <div class="bubble">안녕! 선생님이 알려 준 반 코드와 내 번호를 눌러 줘.</div>
+    </div>
+    <div class="field">
+      <label for="code">반 코드</label>
+      <input id="code" maxlength="6" autocomplete="off" placeholder="ABCD">
+    </div>
+    <div class="field">
+      <label>내 번호</label>
+      <div id="numgrid" class="numgrid"></div>
+    </div>
+    <div id="enter-msg" class="bubble pink hidden"></div>
+    <div class="foot"><button id="go" class="btn" disabled>시작하기</button></div>
+  </section>
+
+  <section id="s-read" class="screen hidden">
+    <div class="topbar"><button id="back-read" class="back" aria-label="처음으로">‹</button><span class="step">읽기</span></div>
+    <div class="hero">
+      <div id="m-read"></div>
+      <div class="bubble">글을 읽다가 <b>모르는 낱말</b>이 나오면 눌러 줘. 몇 개든 괜찮아.</div>
+    </div>
+    <h2 id="read-title"></h2>
+    <div id="reading" class="reading"></div>
+    <div id="tapcount" class="tapcount"></div>
+    <div class="foot"><button id="to-words" class="btn">다 읽었어요</button></div>
+  </section>
+
+  <section id="s-words" class="screen hidden">
+    <div class="topbar"><button id="back-words" class="back" aria-label="읽기로">‹</button><span class="step">뜻 확인</span></div>
+    <div class="hero">
+      <div id="m-words"></div>
+      <div id="words-bubble" class="bubble lilac"></div>
+    </div>
+    <div id="card" class="card"></div>
+    <div id="dots" class="dots"></div>
+    <div id="card-nav" class="row"><button id="prev" class="btn ghost">이전</button><button id="next" class="btn lilac">다음 낱말</button></div>
+    <div class="foot"><button id="words-skip" class="btn ghost">질문으로 바로 가기</button></div>
+  </section>
+
+  <section id="s-quiz" class="screen hidden">
+    <div class="topbar"><button id="back-quiz" class="back" aria-label="뒤로">‹</button><span class="step">생각 질문 <span id="q-step"></span></span></div>
+    <div class="hero">
+      <div id="m-quiz"></div>
+      <div class="bubble mint">글을 떠올리면서 골라 봐. 틀려도 괜찮아.</div>
+    </div>
+    <div id="question" class="question"></div>
+    <div id="choices" class="choices"></div>
+    <div class="foot"><button id="q-next" class="btn mint" disabled>다음 질문</button></div>
+  </section>
+
+  <section id="s-done" class="screen hidden">
+    <div class="center" id="m-done" style="display:flex;justify-content:center"></div>
+    <div id="done-msg" class="big pop"></div>
+    <div id="done-sub" class="center muted"></div>
+    <div id="done-chips" class="chips" style="justify-content:center"></div>
+    <div class="foot"><button id="done-btn" class="btn">끝</button></div>
+  </section>
+
+</div>
+<script src="js/config.js"></script>
+<script src="js/content.js"></script>
+<script src="js/mascots.js"></script>
+<script src="js/textparse.js"></script>
+<script src="js/store.js"></script>
+<script src="js/student.js"></script>
+</body>
+</html>

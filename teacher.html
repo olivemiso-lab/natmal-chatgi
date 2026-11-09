@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>낱말 찾기 · 선생님</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="teacher">
+  <div class="thead">
+    <div id="m-teacher"></div>
+    <div><h1>선생님 화면</h1><div class="muted" id="unit-title"></div></div>
+    <div id="class-main" class="hidden" style="display:flex;align-items:center;gap:10px;margin-left:auto;flex-wrap:wrap">
+      <span class="muted">반 코드</span><span id="code-view" class="code"></span>
+      <label class="muted">인원 <input id="size" type="number" min="1" max="40" style="width:64px;font-size:17px;padding:4px"></label>
+      <button id="leave" class="btn small ghost">다른 반</button>
+    </div>
+  </div>
+  <div class="muted" style="margin:-8px 0 12px">저장 방식: <span id="mode"></span></div>
+
+  <div id="class-setup" class="panel hidden">
+    <h2>반 만들기</h2>
+    <p class="muted">반 코드는 학생이 입장할 때 입력합니다. 비워 두면 자동으로 만들어요.</p>
+    <div class="tools"><input id="code-in" class="tinput" maxlength="6" placeholder="자동"><button id="make" class="btn small">반 만들기</button></div>
+  </div>
+
+  <div class="panel">
+    <h2>연습 글</h2>
+    <div id="tlist" class="tlist"></div>
+  </div>
+
+  <div class="panel">
+    <h2><span class="live"></span> 결과: <span id="r-title"></span> <span class="tag" id="r-count"></span></h2>
+    <div class="tools" style="margin-bottom:12px">
+      <span id="r-total" class="total"></span>
+      <button id="cards" class="btn small lilac">낱말 카드 띄우기</button>
+      <button id="clear" class="btn small danger">기록 모두 삭제</button>
+    </div>
+    <div class="grid2">
+      <div>
+        <h3 style="margin:0 0 8px;font-size:16px">많이 막힌 낱말</h3>
+        <div id="bars" class="bars"></div>
+        <div id="asklist" class="muted" style="margin-top:10px"></div>
+      </div>
+      <div>
+        <h3 style="margin:0 0 8px;font-size:16px">학생 유형 <span class="muted" style="font-weight:400;font-size:13px">(사실 확인 문항 기준 · ○× 는 추론 문항 · 🔊 읽어주기 사용)</span></h3>
+        <div id="types" class="types"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="overlay" class="overlay hidden">
+  <button id="o-close" class="close">닫기 (Esc)</button>
+  <div id="o-card" class="bigcard"></div>
+  <div class="nav"><button id="o-prev">‹</button><span id="o-pos"></span><button id="o-next">›</button></div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/content.js"></script>
+<script src="js/mascots.js"></script>
+<script src="js/textparse.js"></script>
+<script src="js/store.js"></script>
+<script src="js/teacher.js"></script>
+</body>
+</html>
