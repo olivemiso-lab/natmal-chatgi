@@ -3,7 +3,7 @@
 (function () {
   function stripBrackets(s) { return s.replace(/\[([^\]]+)\]/g, '$1'); }
   function parse(body) {
-    var sentences = body.split(/(?<=[.!?])\s+/);
+    var sentences = body.split(/(?<=[.!?][”’"']?)\s+/);
     return sentences.map(function (sent) {
       var parts = sent.split(/(\[[^\]]+\])/).filter(Boolean);
       var tokens = [], afterConcept = false;
