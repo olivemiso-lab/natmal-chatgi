@@ -6,6 +6,8 @@
 <title>낱말 찾기</title>
 <meta name="theme-color" content="#1767a8">
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -30,7 +32,7 @@
   </section>
 
   <section id="s-read" class="screen hidden">
-    <div class="topbar"><button id="back-read" class="back" aria-label="처음으로">‹</button><span class="step">읽기</span></div>
+    <div class="topbar"><button id="back-read" class="back" aria-label="처음으로">‹</button><span class="step">읽기</span><span class="steps"><i class="on"></i><i></i><i></i><i></i></span></div>
     <div class="hero">
       <div id="m-read"></div>
       <div id="read-bubble" class="bubble">글을 읽다가 <b>모르는 낱말</b>이 나오면 눌러 줘. 몇 개든 괜찮아.</div>
@@ -42,7 +44,7 @@
   </section>
 
   <section id="s-words" class="screen hidden">
-    <div class="topbar"><button id="back-words" class="back" aria-label="읽기로">‹</button><span class="step">뜻 확인</span></div>
+    <div class="topbar"><button id="back-words" class="back" aria-label="읽기로">‹</button><span class="step">뜻 확인</span><span class="steps"><i class="done"></i><i class="on"></i><i></i><i></i></span></div>
     <div class="hero">
       <div id="m-words"></div>
       <div id="words-bubble" class="bubble lilac"></div>
@@ -54,7 +56,7 @@
   </section>
 
   <section id="s-quiz" class="screen hidden">
-    <div class="topbar"><button id="back-quiz" class="back" aria-label="뒤로">‹</button><span class="step">생각 질문 <span id="q-step"></span></span></div>
+    <div class="topbar"><button id="back-quiz" class="back" aria-label="뒤로">‹</button><span class="step">생각 질문 <span id="q-step"></span></span><span class="steps"><i class="done"></i><i class="done"></i><i class="on"></i><i></i></span></div>
     <div class="hero">
       <div id="m-quiz"></div>
       <div class="bubble mint">글을 떠올리면서 골라 봐. 틀려도 괜찮아.</div>
@@ -65,7 +67,7 @@
   </section>
 
   <section id="s-done" class="screen hidden">
-    <div class="center" id="m-done" style="display:flex;justify-content:center"></div>
+    <div class="hero" style="justify-content:center"><div id="m-done"></div><div id="done-bubble" class="bubble pop" style="flex:0 1 auto"></div></div><div id="confetti" class="confetti"></div>
     <div id="done-msg" class="big pop"></div>
     <div id="done-sub" class="center muted"></div>
     <div id="done-chips" class="chips" style="justify-content:center"></div>

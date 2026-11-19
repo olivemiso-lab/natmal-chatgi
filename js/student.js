@@ -72,7 +72,7 @@
         w.dataset.key = tk.key;
         w.onclick = function () {
           var i = S.tapped.indexOf(tk.key);
-          if (i >= 0) { S.tapped.splice(i, 1); w.classList.remove('on'); } else { S.tapped.push(tk.key); w.classList.add('on'); }
+          if (i >= 0) { S.tapped.splice(i, 1); w.classList.remove('on'); } else { S.tapped.push(tk.key); w.classList.add('on'); react(tk.key); }
           updateCount();
         };
         p.appendChild(w); p.appendChild(document.createTextNode(' '));
@@ -81,6 +81,28 @@
     });
     updateCount();
     show('s-read');
+  }
+  var LINES = ['좋아! 모르는 건 누르면 돼.', '오, 그 낱말 궁금했구나!', '잘했어. 찾아내는 게 진짜 공부야.', '하나 더 찾았네!', '모르는 걸 아는 게 멋진 거야.', '누르기만 해도 반은 배운 거야.'];
+  var reactT = null;
+  function react(key) {
+    var b = $('#read-bubble'), m = $('#m-read .mascot');
+    b.textContent = LINES[Math.floor(Math.random() * LINES.length)];
+    b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+    if (m) { m.classList.remove('wiggle'); void m.offsetWidth; m.classList.add('wiggle'); }
+    clearTimeout(reactT);
+    reactT = setTimeout(function () { b.innerHTML = '또 모르는 낱말이 있으면 눌러 줘. 누른 낱말은 이따가 같이 볼게.'; }, 2200);
+  }
+  function confetti() {
+    var box = $('#confetti'); if (!box) return; box.innerHTML = '';
+    var colors = ['#ffd166', '#ff8fab', '#8fd3ff', '#b5e48c', '#cdb4ff'];
+    for (var i = 0; i < 40; i++) {
+      var c = document.createElement('i');
+      c.style.left = Math.random() * 100 + '%'; c.style.background = colors[i % colors.length];
+      c.style.animationDelay = (Math.random() * .8) + 's'; c.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+      c.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+      box.appendChild(c);
+    }
+    setTimeout(function () { box.innerHTML = ''; }, 4500);
   }
   function updateCount() {
     $('#tapcount').textContent = S.tapped.length ? '누른 낱말 ' + S.tapped.length + '개' : '모르는 낱말이 있으면 눌러 보세요';
@@ -159,8 +181,10 @@
       tts: S.tts, at: Date.now()
     };
     if (!S.preview) window.Store.saveRecord(S.code, t.id, S.num, rec);
-    setMascot($('#m-done'), t.mascot, 'bounce');
+    setMascot($('#m-done'), t.mascot, 'lg cheer');
     var n = S.tapped.length;
+    $('#done-bubble').textContent = n ? mname(t.mascot) + ': 와, 오늘 ' + n + '개나 찾았어!' : mname(t.mascot) + ': 끝까지 읽었구나, 멋져!';
+    confetti();
     $('#done-msg').textContent = n ? '모르는 낱말 ' + n + '개를 잘 찾아냈어요!' : '글을 끝까지 읽고 질문까지 했어요!';
     $('#done-sub').textContent = n ? '모르는 걸 찾아내는 게 공부의 시작이에요.' : '다음에 모르는 낱말이 나오면 꼭 눌러 보세요.';
     $('#done-chips').innerHTML = S.tapped.map(function (k) { return '<span class="chip' + (t.words[k] ? '' : ' ask') + '">' + k + '</span>'; }).join('');

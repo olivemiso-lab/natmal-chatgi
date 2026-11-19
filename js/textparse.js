@@ -3,7 +3,12 @@
 (function () {
   function stripBrackets(s) { return s.replace(/\[([^\]]+)\]/g, '$1'); }
   function parse(body) {
-    var sentences = body.split(/(?<=[.!?][”’"']?)\s+/);
+    var raw = body.split(/(?<=[.!?][”’"']?)\s+/), sentences = [];
+    raw.forEach(function (x) {
+      var last = sentences[sentences.length - 1];
+      var open = last && (last.split('“').length - 1) > (last.split('”').length - 1);
+      if (open) sentences[sentences.length - 1] = last + ' ' + x; else sentences.push(x);
+    });
     return sentences.map(function (sent) {
       var parts = sent.split(/(\[[^\]]+\])/).filter(Boolean);
       var tokens = [], afterConcept = false;
