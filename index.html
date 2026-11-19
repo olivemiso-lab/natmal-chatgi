@@ -12,9 +12,10 @@
 <div class="app">
 
   <section id="s-enter" class="screen hidden">
+    <div id="enter-unit" class="muted center"></div>
     <div class="hero">
       <div id="m-enter"></div>
-      <div class="bubble">안녕! 선생님이 알려 준 반 코드와 내 번호를 눌러 줘.</div>
+      <div id="enter-bubble" class="bubble">안녕! 선생님이 알려 준 반 코드와 내 번호를 눌러 줘.</div>
     </div>
     <div class="field">
       <label for="code">반 코드</label>
@@ -32,7 +33,7 @@
     <div class="topbar"><button id="back-read" class="back" aria-label="처음으로">‹</button><span class="step">읽기</span></div>
     <div class="hero">
       <div id="m-read"></div>
-      <div class="bubble">글을 읽다가 <b>모르는 낱말</b>이 나오면 눌러 줘. 몇 개든 괜찮아.</div>
+      <div id="read-bubble" class="bubble">글을 읽다가 <b>모르는 낱말</b>이 나오면 눌러 줘. 몇 개든 괜찮아.</div>
     </div>
     <h2 id="read-title"></h2>
     <div id="reading" class="reading"></div>
@@ -73,7 +74,7 @@
 
 </div>
 <script src="js/config.js"></script>
-<script src="js/content.js"></script>
+<script src="js/units.js"></script>
 <script src="js/mascots.js"></script>
 <script src="js/textparse.js"></script>
 <script src="js/store.js"></script>

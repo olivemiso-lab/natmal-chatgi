@@ -1,7 +1,6 @@
 (function () {
   var $ = function (s) { return document.querySelector(s); };
-  var S = { code: '', num: 0, text: null, tapped: [], tts: 0, answers: [], preview: false, size: 30 };
-  var texts = window.CONTENT.texts;
+  var S = { code: '', num: 0, text: null, unit: null, tapped: [], tts: 0, answers: [], preview: false, size: 30 };
   var qs = new URLSearchParams(location.search);
 
   function show(id) {
@@ -10,10 +9,16 @@
     window.scrollTo(0, 0);
   }
   function setMascot(el, name, cls) { el.innerHTML = ''; el.appendChild(window.mascotEl(name, cls)); }
+  function mname(m) { return (window.MASCOT_INFO[m] || {}).name || ''; }
 
   // ---------- 입장 ----------
-  function initEnter() {
-    setMascot($('#m-enter'), 'rabbit', 'bounce');
+  function initEnter(unitMeta) {
+    var m = unitMeta ? unitMeta.mascot : 'rabbit';
+    setMascot($('#m-enter'), m, 'bounce');
+    if (unitMeta) {
+      $('#enter-unit').textContent = window.unitLabel(unitMeta);
+      $('#enter-bubble').innerHTML = '안녕! 나는 <b>' + mname(m) + '</b>야. 선생님이 알려 준 반 코드와 내 번호를 눌러 줘.';
+    }
     var grid = $('#numgrid'); grid.innerHTML = '';
     for (var i = 1; i <= S.size; i++) {
       var b = document.createElement('button'); b.textContent = i; b.dataset.n = i;
@@ -29,23 +34,24 @@
       localStorage.setItem('munhae_last_code', S.code);
       $('#go').disabled = true;
       window.Store.getClass(S.code).then(function (c) {
-        $('#go').disabled = false;
-        if (!c) return say('반 코드를 다시 확인해 주세요.');
-        if (!c.openTextId) return say('선생님이 아직 연습을 열지 않았어요. 조금만 기다려요.');
-        var t = texts.filter(function (x) { return x.id === c.openTextId; })[0];
-        if (!t) return say('연습 글을 찾을 수 없어요.');
-        start(t);
-      });
+        if (!c) { $('#go').disabled = false; return say('반 코드를 다시 확인해 주세요.'); }
+        if (!c.openTextId) { $('#go').disabled = false; return say('선생님이 아직 연습을 열지 않았어요. 조금만 기다려요.'); }
+        return window.loadUnit(window.unitOfText(c.openTextId)).then(function () {
+          var f = window.findText(c.openTextId);
+          $('#go').disabled = false;
+          if (!f) return say('연습 글을 찾을 수 없어요.');
+          start(f.unit, f.text);
+        });
+      }).catch(function () { $('#go').disabled = false; say('연결이 잘 안 돼요. 다시 눌러 주세요.'); });
     };
   }
   function say(msg) { var b = $('#enter-msg'); b.textContent = msg; b.classList.remove('hidden'); }
 
   // ---------- 읽기 ----------
   var parsed;
-  function start(t) {
-    S.text = t; S.tapped = []; S.tts = 0; S.answers = [];
+  function start(u, t) {
+    S.unit = u; S.text = t; S.tapped = []; S.tts = 0; S.answers = [];
     parsed = window.parseText(t.body);
-    // "환경은" 처럼 묶지 않은 개념어 어절도 같은 개념어로 센다
     var cws = Object.keys(t.words).sort(function (a, b) { return b.length - a.length; });
     parsed.forEach(function (s) { s.tokens.forEach(function (tk) {
       if (tk.concept) return;
@@ -53,9 +59,10 @@
       if (hit) tk.key = hit;
     }); });
     setMascot($('#m-read'), t.mascot, 'sm');
+    $('#read-bubble').innerHTML = (t.intro ? t.intro + ' ' : '') + '읽다가 <b>모르는 낱말</b>이 나오면 눌러 줘. 몇 개든 괜찮아.';
     $('#read-title').textContent = t.title;
     var box = $('#reading'); box.innerHTML = '';
-    parsed.forEach(function (sent, si) {
+    parsed.forEach(function (sent) {
       var p = document.createElement('span'); p.className = 'sent';
       var sp = document.createElement('button'); sp.className = 'speak noprint'; sp.textContent = '🔊'; sp.setAttribute('aria-label', '문장 읽어 주기');
       sp.onclick = function () { speak(sent.text, p, sp); };
@@ -95,7 +102,7 @@
   // ---------- 뜻 확인 ----------
   var cards = [], ci = 0;
   function toWords() {
-    speechSynthesis && speechSynthesis.cancel();
+    if (window.speechSynthesis) speechSynthesis.cancel();
     var t = S.text;
     cards = S.tapped.map(function (k) {
       var w = t.words[k];
@@ -145,7 +152,7 @@
   function finish() {
     var t = S.text;
     var rec = {
-      num: S.num, textId: t.id, tapped: S.tapped.slice(),
+      num: S.num, textId: t.id, unitId: S.unit.id, tapped: S.tapped.slice(),
       unknown: S.tapped.filter(function (k) { return !t.words[k]; }),
       answers: S.answers.slice(),
       correct: t.questions.map(function (q, i) { return S.answers[i] === q.answer; }),
@@ -159,19 +166,22 @@
     $('#done-chips').innerHTML = S.tapped.map(function (k) { return '<span class="chip' + (t.words[k] ? '' : ' ask') + '">' + k + '</span>'; }).join('');
     show('s-done');
   }
-  $('#done-btn').onclick = function () { if (S.preview) location.href = 'teacher.html'; else location.reload(); };
-
-  // 뒤로
-  $('#back-read').onclick = function () { if (S.preview) location.href = 'teacher.html'; else location.reload(); };
+  var teacherUrl = 'teacher.html' + (S.unit ? '?unit=' + S.unit.id : '');
+  $('#done-btn').onclick = function () { if (S.preview) location.href = 'teacher.html?unit=' + S.unit.id; else location.reload(); };
+  $('#back-read').onclick = function () { if (S.preview) location.href = 'teacher.html?unit=' + S.unit.id; else location.reload(); };
   $('#back-words').onclick = function () { show('s-read'); };
   $('#back-quiz').onclick = function () { if (qi > 0) { qi--; renderQ(); } else toWords(); };
   $('#to-words').onclick = toWords;
 
-  // 시작
-  if (qs.get('text')) {
+  // ---------- 시작 ----------
+  var textId = qs.get('text'), unitId = qs.get('unit') || (textId ? window.unitOfText(textId) : null);
+  var meta = window.UNIT_LIST.filter(function (u) { return u.id === unitId; })[0] || null;
+  if (textId && meta) {
     S.preview = true; S.num = 0;
-    var t = texts.filter(function (x) { return x.id === qs.get('text'); })[0];
-    if (t) start(t); else { initEnter(); show('s-enter'); }
-  } else { initEnter(); show('s-enter'); }
+    window.loadUnit(meta.id).then(function () {
+      var f = window.findText(textId);
+      if (f) start(f.unit, f.text); else { initEnter(meta); show('s-enter'); }
+    });
+  } else { initEnter(meta); show('s-enter'); }
   if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(function () {});
 })();
