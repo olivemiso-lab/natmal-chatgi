@@ -62,21 +62,25 @@
   // ---------- 연습 글 ----------
   function renderTexts() {
     var box = $('#tlist'); box.innerHTML = '';
-    var openId = T.cls && T.cls.openTextId;
-    if (openId && window.unitOfText(openId) !== T.unit.id) {
-      var f = window.findText(openId);
-      $('#open-elsewhere').textContent = '지금 열려 있는 연습: ' + (f ? window.unitLabel(f.unit) + ' · ' + f.text.title : openId) + ' (다른 단원)';
+    var openId = T.cls && T.cls.openTextId, drillId = T.cls && T.cls.openDrillId;
+    var elseId = openId || drillId;
+    if (elseId && window.unitOfText(elseId) !== T.unit.id) {
+      var f = window.findText(elseId);
+      $('#open-elsewhere').textContent = '지금 열려 있는 ' + (openId ? '연습' : '다지기') + ': ' + (f ? window.unitLabel(f.unit) + ' · ' + f.text.title : elseId) + ' (다른 단원)';
       $('#open-elsewhere').classList.remove('hidden');
     } else $('#open-elsewhere').classList.add('hidden');
     curTexts().forEach(function (t) {
-      var open = openId === t.id;
-      var d = document.createElement('div'); d.className = 'titem' + (open ? ' open' : '') + (T.sel === t.id ? ' sel' : '');
+      var open = openId === t.id, dopen = drillId === t.id;
+      var d = document.createElement('div'); d.className = 'titem' + (open || dopen ? ' open' : '') + (T.sel === t.id ? ' sel' : '');
       d.innerHTML = '<div class="ttl"><b>' + t.title + '</b><span>' + t.lesson + ' · ' + (t.style || '') + ' · 개념어 ' + Object.keys(t.words).join(', ') + '</span></div>' +
-        (open ? '<span class="tag mint">학생 입장 가능</span>' : '') +
+        (open ? '<span class="tag mint">수업 전 연습 열림</span>' : '') + (dopen ? '<span class="tag">수업 뒤 다지기 열림</span>' : '') +
         '<a class="btn small ghost" href="index.html?text=' + t.id + '">미리 보기</a>' +
-        '<button class="btn small ' + (open ? 'danger' : 'mint') + '" data-act="toggle">' + (open ? '닫기' : '열기') + '</button>' +
+        '<button class="btn small ' + (open ? 'danger' : 'mint') + '" data-act="toggle">' + (open ? '연습 닫기' : '수업 전 연습 열기') + '</button>' +
+        '<button class="btn small ' + (dopen ? 'danger' : 'lilac') + '" data-act="drill">' + (dopen ? '다지기 닫기' : '수업 뒤 다지기 열기') + '</button>' +
+        '<a class="btn small ghost" href="index.html?drill=' + t.id + '">다지기 미리 보기</a>' +
         '<button class="btn small ghost" data-act="see">결과</button>';
-      d.querySelector('[data-act=toggle]').onclick = function () { window.Store.setClass(T.code, { openTextId: open ? null : t.id }); select(t.id); };
+      d.querySelector('[data-act=toggle]').onclick = function () { window.Store.setClass(T.code, { openTextId: open ? null : t.id, openDrillId: null }); select(t.id); };
+      d.querySelector('[data-act=drill]').onclick = function () { window.Store.setClass(T.code, { openDrillId: dopen ? null : t.id, openTextId: null }); select(t.id); };
       d.querySelector('[data-act=see]').onclick = function () { select(t.id); };
       box.appendChild(d);
     });
@@ -85,8 +89,23 @@
     T.sel = id; renderTexts();
     var t = textById(id); if (!t) return;
     $('#r-title').textContent = t.title;
-    if (T.unwatch) T.unwatch();
-    T.unwatch = window.Store.watchRecords(T.code, id, function (r) { T.recs = r || {}; renderResult(t); });
+    if (T.unwatch) T.unwatch(); if (T.unwatchD) T.unwatchD();
+    T.drecs = {};
+    T.unwatch = window.Store.watchRecords(T.code, id, function (r) { T.recs = r || {}; renderResult(t); renderDrill(t); });
+    T.unwatchD = window.Store.watchRecords(T.code, id + '-drill', function (r) { T.drecs = r || {}; renderDrill(t); });
+  }
+  function renderDrill(t) {
+    var list = Object.keys(T.drecs || {}).map(function (k) { return T.drecs[k]; });
+    var box = $('#drill-res');
+    if (!list.length) { box.innerHTML = '<div class="empty">수업 뒤 다지기를 열면 낱말별로 수업 전 막힘과 수업 뒤 결과가 나란히 보여요.</div>'; return; }
+    var pre = {}; Object.keys(T.recs || {}).forEach(function (k) { (T.recs[k].tapped || []).forEach(function (w) { pre[w] = (pre[w] || 0) + 1; }); });
+    var rows = Object.keys(t.words).map(function (w) {
+      var tried = list.filter(function (r) { return w in (r.results || {}); }), ok = tried.filter(function (r) { return r.results[w]; });
+      return '<tr><td>' + w + '</td><td>' + (pre[w] || 0) + '명</td><td>' + ok.length + ' / ' + tried.length + '명</td><td>' + (tried.length ? Math.round(ok.length / tried.length * 100) + '%' : '-') + '</td></tr>';
+    }).join('');
+    var miss = list.reduce(function (a, r) { return a + (r.misses || 0); }, 0) / list.length;
+    box.innerHTML = '<div class="muted" style="margin-bottom:6px">' + list.length + '명 완료 · 짝 맞추기 헛걸음 평균 ' + miss.toFixed(1) + '회</div>' +
+      '<table class="cmp"><thead><tr><th>개념어</th><th>수업 전 누른 학생</th><th>수업 뒤 바로 맞힘</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
   // ---------- 결과 ----------
@@ -128,7 +147,7 @@
 
   $('#clear').onclick = function () {
     if (!confirm('이 반의 연습 기록을 모두 지울까요? 되돌릴 수 없어요.')) return;
-    window.Store.clearRecords(T.code, allTextIds()).then(function () { T.recs = {}; var t = textById(T.sel); if (t) renderResult(t); });
+    window.Store.clearRecords(T.code, allTextIds().concat(allTextIds().map(function (i) { return i + '-drill'; }))).then(function () { T.recs = {}; var t = textById(T.sel); if (t) renderResult(t); });
   };
 
   // ---------- 낱말 카드 ----------

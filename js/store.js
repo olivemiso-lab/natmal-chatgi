@@ -12,7 +12,7 @@
   var LocalStore = {
     mode: 'local',
     getClass: function (code) { return Promise.resolve(local.get('class_' + norm(code))); },
-    setClass: function (code, data) { local.set('class_' + norm(code), data); return Promise.resolve(); },
+    setClass: function (code, data) { var k = 'class_' + norm(code), cur = local.get(k) || {}; Object.keys(data).forEach(function (f) { cur[f] = data[f]; }); local.set(k, cur); return Promise.resolve(); },
     saveRecord: function (code, textId, num, rec) {
       var k = 'rec_' + norm(code) + '_' + textId; var all = local.get(k) || {}; all[num] = rec; local.set(k, all); return Promise.resolve();
     },

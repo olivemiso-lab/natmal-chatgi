@@ -74,12 +74,43 @@
     <div class="foot"><button id="done-btn" class="btn">끝</button></div>
   </section>
 
+  <section id="s-drill" class="screen hidden">
+    <div class="topbar"><button id="back-drill" class="back" aria-label="처음으로">‹</button><span class="step">낱말 다지기 <span id="d-step"></span></span></div>
+    <div class="hero">
+      <div id="m-drill"></div>
+      <div id="d-bubble" class="bubble lilac"></div>
+    </div>
+    <h2 id="d-title"></h2>
+    <div id="d-prompt" class="question"></div>
+    <div id="d-choices" class="choices"></div>
+    <div id="d-card" class="card hidden"></div>
+    <div class="foot"><button id="d-next" class="btn lilac hidden">다음 문제</button></div>
+  </section>
+
+  <section id="s-match" class="screen hidden">
+    <div class="topbar"><span class="step">짝 맞추기</span></div>
+    <div class="hero">
+      <div id="m-match"></div>
+      <div id="match-bubble" class="bubble lilac"></div>
+    </div>
+    <div id="match-grid" class="mgrid"></div>
+  </section>
+
+  <section id="s-ddone" class="screen hidden">
+    <div class="hero" style="justify-content:center"><div id="m-ddone"></div><div id="ddone-bubble" class="bubble pop" style="flex:0 1 auto"></div></div>
+    <div class="big pop">낱말 다지기 끝!</div>
+    <div id="ddone-good" class="chips" style="justify-content:center"></div>
+    <div id="ddone-again" class="chips" style="justify-content:center;flex-direction:column;align-items:center"></div>
+    <div class="foot"><button id="ddone-btn" class="btn">끝</button></div>
+  </section>
+
 </div>
 <script src="js/config.js"></script>
 <script src="js/units.js"></script>
 <script src="js/mascots.js"></script>
 <script src="js/textparse.js"></script>
 <script src="js/store.js"></script>
+<script src="js/drill.js"></script>
 <script src="js/student.js"></script>
 </body>
 </html>

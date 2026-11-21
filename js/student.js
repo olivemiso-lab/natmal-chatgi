@@ -35,12 +35,15 @@
       $('#go').disabled = true;
       window.Store.getClass(S.code).then(function (c) {
         if (!c) { $('#go').disabled = false; return say('반 코드를 다시 확인해 주세요.'); }
-        if (!c.openTextId) { $('#go').disabled = false; return say('선생님이 아직 연습을 열지 않았어요. 조금만 기다려요.'); }
-        return window.loadUnit(window.unitOfText(c.openTextId)).then(function () {
-          var f = window.findText(c.openTextId);
+        var openId = c.openTextId || c.openDrillId;
+        if (!openId) { $('#go').disabled = false; return say('선생님이 아직 연습을 열지 않았어요. 조금만 기다려요.'); }
+        return window.loadUnit(window.unitOfText(openId)).then(function () {
+          var f = window.findText(openId);
           $('#go').disabled = false;
           if (!f) return say('연습 글을 찾을 수 없어요.');
-          start(f.unit, f.text);
+          S.unit = f.unit;
+          if (c.openTextId) start(f.unit, f.text);
+          else window.Drill.start({ unit: f.unit, text: f.text, code: S.code, num: S.num, preview: false });
         });
       }).catch(function () { $('#go').disabled = false; say('연결이 잘 안 돼요. 다시 눌러 주세요.'); });
     };
@@ -92,6 +95,7 @@
     clearTimeout(reactT);
     reactT = setTimeout(function () { b.innerHTML = '또 모르는 낱말이 있으면 눌러 줘. 누른 낱말은 이따가 같이 볼게.'; }, 2200);
   }
+  window.confetti = confetti;
   function confetti() {
     var box = $('#confetti'); if (!box) return; box.innerHTML = '';
     var colors = ['#ffd166', '#ff8fab', '#8fd3ff', '#b5e48c', '#cdb4ff'];
@@ -198,13 +202,14 @@
   $('#to-words').onclick = toWords;
 
   // ---------- 시작 ----------
-  var textId = qs.get('text'), unitId = qs.get('unit') || (textId ? window.unitOfText(textId) : null);
+  var drillId = qs.get('drill'), textId = qs.get('text') || drillId, unitId = qs.get('unit') || (textId ? window.unitOfText(textId) : null);
   var meta = window.UNIT_LIST.filter(function (u) { return u.id === unitId; })[0] || null;
   if (textId && meta) {
     S.preview = true; S.num = 0;
     window.loadUnit(meta.id).then(function () {
       var f = window.findText(textId);
-      if (f) start(f.unit, f.text); else { initEnter(meta); show('s-enter'); }
+      if (f && drillId) { S.unit = f.unit; window.Drill.start({ unit: f.unit, text: f.text, code: '', num: 0, preview: true }); }
+      else if (f) start(f.unit, f.text); else { initEnter(meta); show('s-enter'); }
     });
   } else { initEnter(meta); show('s-enter'); }
   if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(function () {});
